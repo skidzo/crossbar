@@ -1,9 +1,9 @@
 #####################################################################################
 #
-#  Copyright (C) Tavendo GmbH
+#  Copyright (c) Crossbar.io Technologies GmbH
 #
-#  Unless a separate license agreement exists between you and Tavendo GmbH (e.g. you
-#  have purchased a commercial license), the license terms below apply.
+#  Unless a separate license agreement exists between you and Crossbar.io GmbH (e.g.
+#  you have purchased a commercial license), the license terms below apply.
 #
 #  Should you enter into a separate license agreement after having received a copy of
 #  this software, then the terms of such license agreement replace the terms below at
@@ -72,6 +72,17 @@ class UniSocketServerProtocol(Protocol):
                     self._proto = self._factory._rawsocket_factory.buildProtocol(self._addr)
                     self._proto.transport = self.transport
                     self._proto.connectionMade()
+                    self._proto.dataReceived(data)
+            elif data[0:1] == b'\x10':
+                # switch to MQTT
+                if not self._factory._mqtt_factory:
+                    self.log.warn('client wants to talk MQTT, but we have no factory configured for that')
+                    self.transport.loseConnection()
+                else:
+                    self.log.debug('switching to MQTT')
+                    self._proto = self._factory._mqtt_factory.buildProtocol(self._addr)
+                    self._proto.transport = self.transport
+                    self._proto.connectionMade(True)
                     self._proto.dataReceived(data)
             else:
                 # switch to HTTP, further subswitching to WebSocket (from Autobahn, like a WebSocketServerFactory)
@@ -160,12 +171,13 @@ class UniSocketServerFactory(Factory):
 
     noisy = False
 
-    def __init__(self, web_factory=None, websocket_factory_map=None, rawsocket_factory=None):
+    def __init__(self, web_factory=None, websocket_factory_map=None, rawsocket_factory=None, mqtt_factory=None):
         """
         """
         self._web_factory = web_factory
         self._websocket_factory_map = websocket_factory_map
         self._rawsocket_factory = rawsocket_factory
+        self._mqtt_factory = mqtt_factory
 
     def buildProtocol(self, addr):
         proto = UniSocketServerProtocol(self, addr)

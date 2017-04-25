@@ -1,9 +1,9 @@
 #####################################################################################
 #
-#  Copyright (C) Tavendo GmbH
+#  Copyright (c) Crossbar.io Technologies GmbH
 #
-#  Unless a separate license agreement exists between you and Tavendo GmbH (e.g. you
-#  have purchased a commercial license), the license terms below apply.
+#  Unless a separate license agreement exists between you and Crossbar.io GmbH (e.g.
+#  you have purchased a commercial license), the license terms below apply.
 #
 #  Should you enter into a separate license agreement after having received a copy of
 #  this software, then the terms of such license agreement replace the terms below at
@@ -161,7 +161,7 @@ class WebSocketTesteeWorkerSession(NativeWorkerSession):
         dl = []
         for proc in procs:
             uri = '{}.{}'.format(self._uri_prefix, proc)
-            self.log.info("Registering management API procedure {proc}", proc=uri)
+            self.log.debug("Registering management API procedure {proc}", proc=uri)
             dl.append(self.register(getattr(self, proc), uri, options=RegisterOptions(details_arg='details')))
 
         regs = yield DeferredList(dl)

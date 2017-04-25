@@ -1,9 +1,9 @@
 #####################################################################################
 #
-#  Copyright (C) Tavendo GmbH
+#  Copyright (c) Crossbar.io Technologies GmbH
 #
-#  Unless a separate license agreement exists between you and Tavendo GmbH (e.g. you
-#  have purchased a commercial license), the license terms below apply.
+#  Unless a separate license agreement exists between you and Crossbar.io GmbH (e.g.
+#  you have purchased a commercial license), the license terms below apply.
 #
 #  Should you enter into a separate license agreement after having received a copy of
 #  this software, then the terms of such license agreement replace the terms below at
@@ -163,6 +163,7 @@ def pprint_json(obj, log_to=None):
 def construct_yaml_str(self, node):
     return self.construct_scalar(node)
 
+
 for Klass in [Loader, SafeLoader]:
     Klass.add_constructor(u'tag:yaml.org,2002:str', construct_yaml_str)
 
@@ -184,6 +185,7 @@ def construct_ordered_mapping(self, node, deep=False):
         mapping[key] = value
     return mapping
 
+
 yaml.constructor.BaseConstructor.construct_mapping = construct_ordered_mapping
 
 
@@ -192,6 +194,7 @@ def construct_yaml_map_with_ordered_dict(self, node):
     yield data
     value = self.construct_mapping(node)
     data.update(value)
+
 
 for Klass in [Loader, SafeLoader]:
     Klass.add_constructor('tag:yaml.org,2002:map',
@@ -225,6 +228,7 @@ def represent_ordered_dict(dump, tag, mapping, flow_style=None):
         else:
             node.flow_style = best_style
     return node
+
 
 for Klass in [Dumper, SafeDumper]:
     Klass.add_representer(OrderedDict,
@@ -312,6 +316,7 @@ def get_config_value(config, item, default=None):
     else:
         return default
 
+
 _CONFIG_ITEM_ID_PAT_STR = "^[a-z][a-z0-9_]{2,11}$"
 _CONFIG_ITEM_ID_PAT = re.compile(_CONFIG_ITEM_ID_PAT_STR)
 
@@ -321,9 +326,9 @@ def check_id(id):
     Check a configuration item ID.
     """
     if not isinstance(id, six.text_type):
-        raise InvalidConfigException("invalid configuration item ID '{}' - type must be string, was ".format(id, type(id)))
+        raise InvalidConfigException(u'invalid configuration item ID "{}" - type must be string, was {}'.format(id, type(id)))
     if not _CONFIG_ITEM_ID_PAT.match(id):
-        raise InvalidConfigException("invalid configuration item ID '{}' - must match regular expression {}".format(id, _CONFIG_ITEM_ID_PAT_STR))
+        raise InvalidConfigException(u'invalid configuration item ID "{}" - must match regular expression {}'.format(id, _CONFIG_ITEM_ID_PAT_STR))
 
 
 _REALM_NAME_PAT_STR = r"^[A-Za-z][A-Za-z0-9_\-@\.]{2,254}$"
@@ -335,9 +340,9 @@ def check_realm_name(name):
     Check a realm name.
     """
     if not isinstance(name, six.text_type):
-        raise InvalidConfigException("invalid realm name '{}' - type must be string, was ".format(name, type(name)))
+        raise InvalidConfigException(u'invalid realm name "{}" - type must be string, was {}'.format(name, type(name)))
     if not _REALM_NAME_PAT.match(name):
-        raise InvalidConfigException("invalid realm name '{}' - must match regular expression {}".format(name, _REALM_NAME_PAT_STR))
+        raise InvalidConfigException(u'invalid realm name "{}" - must match regular expression {}'.format(name, _REALM_NAME_PAT_STR))
 
 
 def check_dict_args(spec, config, msg):
@@ -391,7 +396,7 @@ def check_transport_auth_ticket(config):
     Check a Ticket-based authentication configuration item.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/auth/Ticket-Authentication.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/auth/Ticket-Authentication.md
     """
     if 'type' not in config:
         raise InvalidConfigException("missing mandatory attribute 'type' in WAMP-Ticket configuration")
@@ -429,7 +434,7 @@ def check_transport_auth_wampcra(config):
     Check a WAMP-CRA configuration item.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/auth/Challenge-Response-Authentication.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/auth/Challenge-Response-Authentication.md
     """
     if 'type' not in config:
         raise InvalidConfigException("missing mandatory attribute 'type' in WAMP-CRA configuration")
@@ -467,7 +472,7 @@ def check_transport_auth_tls(config):
     Check a WAMP-CRA configuration item.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/auth/Challenge-Response-Authentication.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/auth/Challenge-Response-Authentication.md
     """
     if 'type' not in config:
         raise InvalidConfigException("missing mandatory attribute 'type' in WAMP-TLS configuration")
@@ -524,7 +529,7 @@ def check_transport_auth_cookie(config):
     Check a WAMP-Cookie configuration item.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/auth/Cookie-Authentication.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/auth/Cookie-Authentication.md
     """
     pass
 
@@ -534,7 +539,7 @@ def check_transport_auth_anonymous(config):
     Check a WAMP-Anonymous configuration item.
 
     http://crossbar.io/docs/Anonymous-Authentication
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/auth/Anonymous-Authentication.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/auth/Anonymous-Authentication.md
     """
     if 'type' not in config:
         raise InvalidConfigException("missing mandatory attribute 'type' in WAMP-Anonymous configuration")
@@ -562,7 +567,7 @@ def check_transport_auth(auth):
     Check a WAMP transport authentication configuration.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/auth/Authentication.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/auth/Authentication.md
     """
     if not isinstance(auth, Mapping):
         raise InvalidConfigException("invalid type {} for authentication configuration item (dict expected)".format(type(auth)))
@@ -609,7 +614,7 @@ def check_transport_cookie(cookie):
     Check a WAMP-WebSocket transport cookie configuration.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/router/transport/Cookie-Tracking.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/router/transport/Cookie-Tracking.md
     """
     check_dict_args({
         'name': (False, [six.text_type]),
@@ -721,7 +726,7 @@ def check_listening_endpoint_tls(tls):
     Check a listening endpoint TLS configuration.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/router/transport/Transport-Endpoints.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/router/transport/Transport-Endpoints.md
 
     :param tls: The TLS configuration part of a listening endpoint.
     :type tls: dict
@@ -743,7 +748,7 @@ def check_connecting_endpoint_tls(tls):
     Check a connecting endpoint TLS configuration.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/router/transport/Transport-Endpoints.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/router/transport/Transport-Endpoints.md
 
     :param tls: The TLS configuration part of a connecting endpoint.
     :type tls: dict
@@ -769,7 +774,7 @@ def check_listening_endpoint_tcp(endpoint):
     Check a TCP listening endpoint configuration.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/router/transport/Transport-Endpoints.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/router/transport/Transport-Endpoints.md
 
     :param endpoint: The TCP listening endpoint to check.
     :type endpoint: dict
@@ -816,7 +821,7 @@ def check_listening_endpoint_unix(endpoint):
     Check a Unix listening endpoint configuration.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/router/transport/Transport-Endpoints.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/router/transport/Transport-Endpoints.md
 
     :param endpoint: The Unix listening endpoint to check.
     :type endpoint: dict
@@ -836,12 +841,38 @@ def check_listening_endpoint_unix(endpoint):
         check_endpoint_backlog(endpoint['backlog'])
 
 
+def check_listening_endpoint_twisted(endpoint):
+    """
+    :param endpoint: The Twisted endpoint to check
+    :type endpoint: dict
+    """
+    for k in endpoint:
+        if k not in ['type', 'server_string']:
+            raise InvalidConfigException(
+                "encountered unknown attribute '{}' in listening endpoint".format(k)
+            )
+
+    if 'server_string' not in endpoint:
+        raise InvalidConfigException(
+            "missing mandatory attribute 'server_string' in Twisted"
+            " endpoint item\n\n{}".format(pformat(endpoint))
+        )
+
+    server = endpoint['server_string']
+    if not isinstance(server, six.text_type):
+        raise InvalidConfigException(
+            "'server_string' attribute in Twisted endpoint must be str"
+            " ({} encountered)".format(type(server))
+        )
+    # should/can we ask Twisted to parse it easily?
+
+
 def check_connecting_endpoint_tcp(endpoint):
     """
     Check a TCP connecting endpoint configuration.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/router/transport/Transport-Endpoints.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/router/transport/Transport-Endpoints.md
 
     :param endpoint: The TCP connecting endpoint to check.
     :type endpoint: dict
@@ -873,7 +904,7 @@ def check_connecting_endpoint_unix(endpoint):
     Check a Unix connecting endpoint configuration.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/router/transport/Transport-Endpoints.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/router/transport/Transport-Endpoints.md
 
     :param endpoint: The Unix connecting endpoint to check.
     :type endpoint: dict
@@ -893,12 +924,41 @@ def check_connecting_endpoint_unix(endpoint):
         check_endpoint_timeout(endpoint['timeout'])
 
 
+def check_connecting_endpoint_twisted(endpoint):
+    """
+    :param endpoint: The Twisted connecting endpoint to check.
+    :type endpoint: dict
+    """
+    for k in endpoint:
+        if k not in ['type', 'client_string', 'timeout']:
+            raise InvalidConfigException(
+                "encountered unknown attribute '{}' in connecting endpoint".format(k)
+            )
+
+    if 'client_string' not in endpoint:
+        raise InvalidConfigException(
+            "missing mandatory attribute 'client_string' in Twisted endpoint "
+            "item\n\n{}".format(pformat(endpoint))
+        )
+
+    client_string = endpoint['client_string']
+    if not isinstance(client_string, six.text_type):
+        raise InvalidConfigException(
+            "'client_string' attribute in Twisted endpoint must be "
+            "str ({} encountered)".format(type(client_string)))
+    # can we make Twisted tell us if client_string parses? or just
+    # save it until we actually run clientFromString()?
+
+    if 'timeout' in endpoint:
+        check_endpoint_timeout(endpoint['timeout'])
+
+
 def check_listening_endpoint(endpoint):
     """
     Check a listening endpoint configuration.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/router/transport/Transport-Endpoints.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/router/transport/Transport-Endpoints.md
 
     :param endpoint: The listening endpoint configuration.
     :type endpoint: dict
@@ -910,13 +970,15 @@ def check_listening_endpoint(endpoint):
         raise InvalidConfigException("missing mandatory attribute 'type' in endpoint item\n\n{}".format(pformat(endpoint)))
 
     etype = endpoint['type']
-    if etype not in ['tcp', 'unix']:
+    if etype not in ['tcp', 'unix', 'twisted']:
         raise InvalidConfigException("invalid attribute value '{}' for attribute 'type' in endpoint item\n\n{}".format(etype, pformat(endpoint)))
 
     if etype == 'tcp':
         check_listening_endpoint_tcp(endpoint)
     elif etype == 'unix':
         check_listening_endpoint_unix(endpoint)
+    elif etype == 'twisted':
+        check_listening_endpoint_twisted(endpoint)
     else:
         raise InvalidConfigException('logic error')
 
@@ -926,7 +988,7 @@ def check_connecting_endpoint(endpoint):
     Check a conencting endpoint configuration.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/router/transport/Transport-Endpoints.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/router/transport/Transport-Endpoints.md
 
     :param endpoint: The connecting endpoint configuration.
     :type endpoint: dict
@@ -938,13 +1000,15 @@ def check_connecting_endpoint(endpoint):
         raise InvalidConfigException("missing mandatory attribute 'type' in endpoint item\n\n{}".format(pformat(endpoint)))
 
     etype = endpoint['type']
-    if etype not in ['tcp', 'unix']:
+    if etype not in ['tcp', 'unix', 'twisted']:
         raise InvalidConfigException("invalid attribute value '{}' for attribute 'type' in endpoint item\n\n{}".format(etype, pformat(endpoint)))
 
     if etype == 'tcp':
         check_connecting_endpoint_tcp(endpoint)
     elif etype == 'unix':
         check_connecting_endpoint_unix(endpoint)
+    elif etype == 'twisted':
+        check_connecting_endpoint_twisted(endpoint)
     else:
         raise InvalidConfigException('logic error')
 
@@ -954,7 +1018,7 @@ def check_websocket_options(options):
     Check WebSocket / WAMP-WebSocket protocol options.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/router/transport/WebSocket-Options.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/router/transport/WebSocket-Options.md
 
     :param options: The options to check.
     :type options: dict
@@ -1005,7 +1069,7 @@ def check_websocket_compression(options):
     Check options for WebSocket compression.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/router/transport/WebSocket-Compression.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/router/transport/WebSocket-Compression.md
     """
     # FIXME
 
@@ -1015,7 +1079,7 @@ def check_web_path_service_websocket(config):
     Check a "websocket" path service on Web transport.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/web-service/WebSocket-Service.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/web-service/WebSocket-Service.md
 
     :param config: The path service configuration.
     :type config: dict
@@ -1059,7 +1123,7 @@ def check_web_path_service_static(config):
     Check a "static" path service on Web transport.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/web-service/Static-Web-Service.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/web-service/Static-Web-Service.md
 
     :param config: The path service configuration.
     :type config: dict
@@ -1092,7 +1156,7 @@ def check_web_path_service_wsgi(config):
     Check a "wsgi" path service on Web transport.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/web-service/WSGI-Host-Service.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/web-service/WSGI-Host-Service.md
 
     :param config: The path service configuration.
     :type config: dict
@@ -1111,7 +1175,7 @@ def check_web_path_service_resource(config):
     Check a "resource" path service on Web transport.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/web-service/Resource-Service.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/web-service/Resource-Service.md
 
     :param config: The path service configuration.
     :type config: dict
@@ -1128,7 +1192,7 @@ def check_web_path_service_redirect(config):
     Check a "redirect" path service on Web transport.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/web-service/Web-Redirection-Service.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/web-service/Web-Redirection-Service.md
 
     :param config: The path service configuration.
     :type config: dict
@@ -1139,12 +1203,24 @@ def check_web_path_service_redirect(config):
     }, config, "Web transport 'redirect' path service")
 
 
+def check_web_path_service_nodeinfo(config):
+    """
+    Check a "nodeinfo" path service on Web transport.
+
+    :param config: The path service configuration.
+    :type config: dict
+    """
+    check_dict_args({
+        'type': (True, [six.text_type]),
+    }, config, "Web transport 'nodeinfo' path service")
+
+
 def check_web_path_service_reverseproxy(config):
     """
     Check a "reverseproxy" path service on Web transport.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/web-service/Web-ReverseProxy-Service.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/web-service/Web-ReverseProxy-Service.md
 
     :param config: The path service configuration.
     :type config: dict
@@ -1162,7 +1238,7 @@ def check_web_path_service_json(config):
     Check a "json" path service on Web transport.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/web-service/JSON-Value-Service.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/web-service/JSON-Value-Service.md
 
     :param config: The path service configuration.
     :type config: dict
@@ -1186,7 +1262,7 @@ def check_web_path_service_cgi(config):
     Check a "cgi" path service on Web transport.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/web-service/CGI-Script-Service.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/web-service/CGI-Script-Service.md
 
     :param config: The path service configuration.
     :type config: dict
@@ -1203,7 +1279,7 @@ def check_web_path_service_longpoll(config):
     Check a "longpoll" path service on Web transport.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/web-service/Long-Poll-Service.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/web-service/Long-Poll-Service.md
 
     :param config: The path service configuration.
     :type config: dict
@@ -1255,7 +1331,7 @@ def check_web_path_service_publisher(config):
     Check a "publisher" path service on Web transport.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/http-bridge/HTTP-Bridge-Publisher.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/http-bridge/HTTP-Bridge-Publisher.md
 
     :param config: The path service configuration.
     :type config: dict
@@ -1290,7 +1366,7 @@ def check_web_path_service_webhook(config):
     Check a "webhook" path service on Web transport.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/http-bridge/HTTP-Bridge-Webhook.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/http-bridge/HTTP-Bridge-Webhook.md
 
     :param config: The path service configuration.
     :type config: dict
@@ -1317,7 +1393,7 @@ def check_web_path_service_caller(config):
     Check a "caller" path service on Web transport.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/http-bridge/HTTP-Bridge-Caller.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/http-bridge/HTTP-Bridge-Caller.md
 
     :param config: The path service configuration.
     :type config: dict
@@ -1357,7 +1433,7 @@ def check_web_path_service_path(config):
     Check a "path" path service on Web transport.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/web-service/Path-Service.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/web-service/Path-Service.md
 
     :param config: The path service configuration.
     :type config: dict
@@ -1390,7 +1466,7 @@ def check_web_path_service_upload(config):
     Check a file upload path service on Web transport.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/web-service/File-Upload-Service.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/web-service/File-Upload-Service.md
 
     :param config: The path service configuration.
     :type config: dict
@@ -1439,7 +1515,7 @@ def check_web_path_service(path, config, nested):
     Check a single path service on Web transport.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/web-service/Web-Services.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/web-service/Web-Services.md
 
     :param config: The path service configuration.
     :type config: dict
@@ -1451,10 +1527,10 @@ def check_web_path_service(path, config, nested):
 
     ptype = config['type']
     if path == '/' and not nested:
-        if ptype not in ['static', 'wsgi', 'redirect', 'reverseproxy', 'publisher', 'caller', 'resource', 'webhook']:
+        if ptype not in ['static', 'wsgi', 'redirect', 'reverseproxy', 'publisher', 'caller', 'resource', 'webhook', 'nodeinfo']:
             raise InvalidConfigException("invalid type '{}' for root-path service in Web transport path service '{}' configuration\n\n{}".format(ptype, path, config))
     else:
-        if ptype not in ['websocket', 'static', 'wsgi', 'redirect', 'reverseproxy', 'json', 'cgi', 'longpoll', 'publisher', 'caller', 'webhook', 'schemadoc', 'path', 'resource', 'upload']:
+        if ptype not in ['websocket', 'static', 'wsgi', 'redirect', 'reverseproxy', 'json', 'cgi', 'longpoll', 'publisher', 'caller', 'webhook', 'schemadoc', 'path', 'resource', 'upload', 'nodeinfo']:
             raise InvalidConfigException("invalid type '{}' for sub-path service in Web transport path service '{}' configuration\n\n{}".format(ptype, path, config))
 
     checkers = {
@@ -1464,6 +1540,7 @@ def check_web_path_service(path, config, nested):
         'websocket': check_web_path_service_websocket,
         'longpoll': check_web_path_service_longpoll,
         'redirect': check_web_path_service_redirect,
+        'nodeinfo': check_web_path_service_nodeinfo,
         'reverseproxy': check_web_path_service_reverseproxy,
         'json': check_web_path_service_json,
         'cgi': check_web_path_service_cgi,
@@ -1483,7 +1560,7 @@ def check_listening_transport_web(transport, with_endpoint=True):
     Check a listening Web-WAMP transport configuration.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/router/transport/Web-Transport-and-Services.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/router/transport/Web-Transport-and-Services.md
 
     :param transport: The Web transport configuration to check.
     :type transport: dict
@@ -1544,11 +1621,11 @@ _WEB_PATH_PAT_STR = "^([a-z0-9A-Z_\-]+|/)$"
 _WEB_PATH_PATH = re.compile(_WEB_PATH_PAT_STR)
 
 
-def check_listening_transport_mqtt(transport):
+def check_listening_transport_mqtt(transport, with_endpoint=True):
     """
     Check a listening MQTT-WAMP transport configuration.
 
-    http://crossbar.io/docs/
+    http://crossbar.io/docs/MQTT-Broker/
 
     :param transport: The MQTT transport configuration to check.
     :type transport: dict
@@ -1560,11 +1637,46 @@ def check_listening_transport_mqtt(transport):
     if 'id' in transport:
         check_id(transport['id'])
 
-    if 'endpoint' not in transport:
-        raise InvalidConfigException("missing mandatory attribute 'endpoint' in MQTT transport item\n\n{}".format(pformat(transport)))
-    check_listening_endpoint(transport['endpoint'])
+    if with_endpoint:
+        if 'endpoint' not in transport:
+            raise InvalidConfigException("missing mandatory attribute 'endpoint' in MQTT transport item\n\n{}".format(pformat(transport)))
+        check_listening_endpoint(transport['endpoint'])
 
-    # Check options...
+    # Check MQTT options...
+    options = transport.get('options', {})
+    check_dict_args({
+        'realm': (True, [six.text_type]),
+        'role': (False, [six.text_type]),
+        'payload_mapping': (False, [Mapping]),
+    }, options, "invalid MQTT options")
+
+    check_realm_name(options['realm'])
+
+    if 'payload_mapping' in options:
+        for k, v in options['payload_mapping'].items():
+            if type(k) != six.text_type:
+                raise InvalidConfigException('invalid MQTT payload mapping key {}'.format(type(k)))
+            if not isinstance(v, Mapping):
+                raise InvalidConfigException('invalid MQTT payload mapping value {}'.format(type(v)))
+            if 'type' not in v:
+                raise InvalidConfigException('missing "type" in MQTT payload mapping {}'.format(v))
+            if v['type'] not in [u'passthrough', u'native', u'dynamic']:
+                raise InvalidConfigException('invalid "type" in MQTT payload mapping: {}'.format(v['type']))
+            if v['type'] == u'passthrough':
+                pass
+            elif v['type'] == u'native':
+                serializer = v.get(u'serializer', None)
+                if serializer not in [u'cbor', u'json', u'msgpack', u'ubjson']:
+                    raise InvalidConfigException('invalid serializer "{}" in MQTT payload mapping'.format(serializer))
+            elif v['type'] == u'dynamic':
+                encoder = v.get(u'encoder', None)
+                if type(encoder) != six.text_type:
+                    raise InvalidConfigException('invalid encoder "{}" in MQTT payload mapping'.format(encoder))
+                decoder = v.get(u'decoder', None)
+                if type(decoder) != six.text_type:
+                    raise InvalidConfigException('invalid decoder "{}" in MQTT payload mapping'.format(decoder))
+            else:
+                raise Exception('logic error')
 
 
 def check_paths(paths, nested=False):
@@ -1595,6 +1707,7 @@ def check_listening_transport_universal(transport):
             'endpoint',
             'rawsocket',
             'websocket',
+            'mqtt',
             'web',
         ]:
             raise InvalidConfigException("encountered unknown attribute '{}' in Universal transport configuration".format(k))
@@ -1621,6 +1734,9 @@ def check_listening_transport_universal(transport):
         for path in paths:
             check_listening_transport_websocket(transport['websocket'][path], with_endpoint=False)
 
+    if 'mqtt' in transport:
+        check_listening_transport_mqtt(transport['mqtt'], with_endpoint=False)
+
     if 'web' in transport:
         check_listening_transport_web(transport['web'], with_endpoint=False)
 
@@ -1630,7 +1746,7 @@ def check_listening_transport_websocket(transport, with_endpoint=True):
     Check a listening WebSocket-WAMP transport configuration.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/router/transport/WebSocket-Transport.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/router/transport/WebSocket-Transport.md
 
     :param transport: The configuration item to check.
     :type transport: dict
@@ -1693,7 +1809,7 @@ def check_listening_transport_websocket_testee(transport):
     Check a listening WebSocket-Testee pseudo transport configuration.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/production/WebSocket-Compliance-Testing.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/production/WebSocket-Compliance-Testing.md
 
     :param transport: The configuration item to check.
     :type transport: dict
@@ -1739,7 +1855,7 @@ def check_listening_transport_stream_testee(transport):
     Check a listening Stream-Testee pseudo transport configuration.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/production/Stream-Testee.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/production/Stream-Testee.md
 
     :param transport: The configuration item to check.
     :type transport: dict
@@ -1771,7 +1887,7 @@ def check_listening_transport_flashpolicy(transport):
     Check a Flash-policy file serving pseudo-transport.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/router/transport/Flash-Policy-Transport.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/router/transport/Flash-Policy-Transport.md
 
     :param transport: The configuration item to check.
     :type transport: dict
@@ -1811,7 +1927,7 @@ def check_listening_transport_rawsocket(transport, with_endpoint=True):
     Check a listening RawSocket-WAMP transport configuration.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/router/transport/RawSocket-Transport.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/router/transport/RawSocket-Transport.md
 
     :param transport: The configuration item to check.
     :type transport: dict
@@ -1863,7 +1979,7 @@ def check_connecting_transport_websocket(transport):
     """
     Check a connecting WebSocket-WAMP transport configuration.
 
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/router/transport/WebSocket-Transport.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/router/transport/WebSocket-Transport.md
 
     :param transport: The configuration item to check.
     :type transport: dict
@@ -1904,7 +2020,7 @@ def check_connecting_transport_rawsocket(transport):
     """
     Check a connecting RawSocket-WAMP transport configuration.
 
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/router/transport/RawSocket-Transport.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/router/transport/RawSocket-Transport.md
 
     :param transport: The configuration item to check.
     :type transport: dict
@@ -1941,7 +2057,7 @@ def check_router_transport(transport):
     """
     Check router transports.
 
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/router/Router-Transports.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/router/Router-Transports.md
 
     :param transport: Router transport item to check.
     :type transport: dict
@@ -1998,7 +2114,7 @@ def check_router_component(component):
     Check a component configuration for a component running side-by-side with
     a router.
 
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/worker/Router-Configuration.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/worker/Router-Configuration.md
 
     :param component: The component configuration.
     :type component: dict
@@ -2010,7 +2126,7 @@ def check_router_component(component):
         raise InvalidConfigException("missing mandatory attribute 'type' in component")
 
     ctype = component['type']
-    if ctype not in ['wamplet', 'class']:
+    if ctype not in ['wamplet', 'class', 'function']:
         raise InvalidConfigException("invalid value '{}' for component type".format(ctype))
 
     if ctype == 'wamplet':
@@ -2038,6 +2154,24 @@ def check_router_component(component):
             'extra': (False, None),
         }, component, "invalid component configuration")
 
+    elif ctype == 'function':
+        check_dict_args({
+            'id': (False, [six.text_type]),
+            'type': (True, [six.text_type]),
+            'realm': (True, [six.text_type]),
+            'role': (False, [six.text_type]),
+
+            'callbacks': (False, [dict]),
+        }, component, "invalid component configuration")
+        if 'callbacks' in component:
+            valid_callbacks = ['join', 'leave', 'connect', 'disconnect']
+            for name in component['callbacks'].keys():
+                if name not in valid_callbacks:
+                    raise InvalidConfigException(
+                        "Invalid callback name '{}' (valid are: {})".format(
+                            name, valid_callbacks
+                        )
+                    )
     else:
         raise InvalidConfigException('logic error')
 
@@ -2046,7 +2180,7 @@ def check_connecting_transport(transport):
     """
     Check container transports.
 
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/router/transport/Transport-Endpoints.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/router/transport/Transport-Endpoints.md
 
     :param transport: Container transport item to check.
     :type transport: dict
@@ -2075,7 +2209,7 @@ def check_container_component(component):
     """
     Check a container component configuration.
 
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/worker/Container-Configuration.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/worker/Container-Configuration.md
 
     :param component: The component configuration to check.
     :type component: dict
@@ -2087,7 +2221,7 @@ def check_container_component(component):
         raise InvalidConfigException("missing mandatory attribute 'type' in component")
 
     ctype = component['type']
-    if ctype not in ['wamplet', 'class']:
+    if ctype not in ['wamplet', 'class', 'function']:
         raise InvalidConfigException("invalid value '{}' for component type".format(ctype))
 
     if ctype == 'wamplet':
@@ -2113,6 +2247,27 @@ def check_container_component(component):
             'extra': (False, None),
         }, component, "invalid component configuration")
 
+    elif ctype == 'function':
+        check_dict_args({
+            'id': (False, [six.text_type]),
+            'type': (True, [six.text_type]),
+            'realm': (True, [six.text_type]),
+            'transport': (True, [Mapping]),
+            'auth': (True, [Mapping]),
+
+            'role': (False, [six.text_type]),
+
+            'callbacks': (False, [dict]),
+        }, component, "invalid component configuration")
+        if 'callbacks' in component:
+            valid_callbacks = ['join', 'leave', 'connect', 'disconnect']
+            for name in component['callbacks'].keys():
+                if name not in valid_callbacks:
+                    raise InvalidConfigException(
+                        "Invalid callback name '{}' (valid are: {})".format(
+                            name, valid_callbacks
+                        )
+                    )
     else:
         raise InvalidConfigException('logic error')
 
@@ -2123,7 +2278,7 @@ def check_container_components(components):
     """
     Check components inside a container.
 
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/worker/Container-Configuration.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/worker/Container-Configuration.md
     """
     if not isinstance(components, Sequence):
         raise InvalidConfigException("'components' items must be lists ({} encountered)".format(type(components)))
@@ -2135,12 +2290,33 @@ def check_container_components(components):
 
 def check_router_realm(realm):
     """
-    Checks the configuration for a router realm entry, which can be *either* a dynamic authorizer or static permissions.
+    Checks the configuration for a router realm entry, which can be
+    *either* a dynamic authorizer or static permissions.
     """
     # router/router.py and router/role.py
 
     for role in realm.get('roles', []):
         check_router_realm_role(role)
+
+    options = realm.get('options', {})
+    if not isinstance(options, Mapping):
+        raise InvalidConfigException(
+            "Realm 'options' must be a dict"
+        )
+    for arg, val in options.items():
+        if arg not in ['event_dispatching_chunk_size', 'uri_check']:
+            raise InvalidConfigException(
+                "Unknown realm option '{}'".format(arg)
+            )
+    if 'event_dispatching_chunk_size' in options:
+        try:
+            edcs = int(options['event_dispatching_chunk_size'])
+            if edcs <= 0:
+                raise ValueError("too small")
+        except ValueError:
+            raise InvalidConfigException(
+                "Realm option 'event_dispatching_chunk_size' must be a positive int"
+            )
 
 
 def check_router_realm_role(role):
@@ -2222,7 +2398,7 @@ def check_router_components(components):
     """
     Check the components that go inside a router.
 
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/worker/Router-Configuration.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/worker/Router-Configuration.md
     """
     if not isinstance(components, Sequence):
         raise InvalidConfigException("'components' items must be lists ({} encountered)".format(type(components)))
@@ -2293,7 +2469,7 @@ def check_router(router):
     """
     Checks a router worker configuration.
 
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/worker/Router-Configuration.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/worker/Router-Configuration.md
 
     :param router: The configuration to check.
     :type router: dict
@@ -2308,7 +2484,7 @@ def check_router(router):
         check_manhole(router['manhole'])
 
     if 'options' in router:
-        check_native_worker_options(router['options'])
+        check_router_options(router['options'])
 
     # realms
     #
@@ -2346,7 +2522,7 @@ def check_container(container):
     """
     Checks a container worker configuration.
 
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/worker/Container-Configuration.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/worker/Container-Configuration.md
 
     :param router: The configuration to check.
     :type router: dict
@@ -2391,7 +2567,7 @@ def check_manhole(manhole):
     Check a process manhole configuration.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/worker/Manhole.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/worker/Manhole.md
 
     :param manhole: The manhole configuration to check.
     :type manhole: dict
@@ -2435,7 +2611,7 @@ def check_process_env(env):
     Check a worker process environment configuration.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/worker/Process-Environments.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/worker/Process-Environments.md
 
     :param env: The `env` part of the worker options.
     :type env: dict
@@ -2475,7 +2651,7 @@ def check_native_worker_options(options):
     Check native worker options.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/worker/Native-Worker-Options.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/worker/Native-Worker-Options.md
 
     :param options: The native worker options to check.
     :type options: dict
@@ -2485,8 +2661,12 @@ def check_native_worker_options(options):
         raise InvalidConfigException("'options' in worker configurations must be dictionaries ({} encountered)".format(type(options)))
 
     for k in options:
-        if k not in ['title', 'reactor', 'python', 'pythonpath', 'cpu_affinity', 'env']:
-            raise InvalidConfigException("encountered unknown attribute '{}' in 'options' in worker configuration".format(k))
+        if k not in ['title', 'reactor', 'python', 'pythonpath', 'cpu_affinity',
+                     'env', 'expose_controller', 'expose_shared']:
+            raise InvalidConfigException(
+                "encountered unknown attribute '{}' in 'options' in worker"
+                " configuration".format(k)
+            )
 
     if 'title' in options:
         title = options['title']
@@ -2522,13 +2702,25 @@ def check_native_worker_options(options):
     if 'env' in options:
         check_process_env(options['env'])
 
+    # this feature requires Crossbar.io Fabric extension
+    if 'expose_controller' in options:
+        expose_controller = options['expose_controller']
+        if not isinstance(expose_controller, bool):
+            raise InvalidConfigException("'expose_controller' in 'options' in worker configuration must be a boolean ({} encountered)".format(type(expose_controller)))
+
+    # this feature requires Crossbar.io Fabric extension
+    if 'expose_shared' in options:
+        expose_shared = options['expose_shared']
+        if not isinstance(expose_shared, bool):
+            raise InvalidConfigException("'expose_shared' in 'options' in worker configuration must be a boolean ({} encountered)".format(type(expose_shared)))
+
 
 def check_guest(guest):
     """
     Check a guest worker configuration.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/worker/Guest-Configuration.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/worker/Guest-Configuration.md
     """
     for k in guest:
         if k not in ['id',
@@ -2622,7 +2814,7 @@ def check_worker(worker):
     Check a node worker configuration item.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/Node-Configuration.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/Node-Configuration.md
 
     :param worker: The worker configuration to check.
     :type worker: dict
@@ -2661,7 +2853,6 @@ def check_controller_options(options):
     :param options: The options to check.
     :type options: dict
     """
-
     if not isinstance(options, Mapping):
         raise InvalidConfigException("'options' in controller configuration must be a dictionary ({} encountered)\n\n{}".format(type(options)))
 
@@ -2682,12 +2873,31 @@ def check_controller_options(options):
                 raise InvalidConfigException("invalid value '{}' for shutdown mode in controller options (permissible values: {})".format(shutdown_mode, ', '.join("'{}'".format(x) for x in NODE_SHUTDOWN_MODES)))
 
 
+def check_controller_fabric(fabric):
+    """
+    Check controller Fabric configuration override (which essentially is only
+    for debugging purposes or for people running Crossbar.io Fabric Service on-premise)
+
+    :param fabric: The Fabric configuration to check.
+    :type fabric: dict
+    """
+    if not isinstance(fabric, Mapping):
+        raise InvalidConfigException("'fabric' in controller configuration must be a dictionary ({} encountered)\n\n{}".format(type(fabric)))
+
+    for k in fabric:
+        if k not in ['transport']:
+            raise InvalidConfigException("encountered unknown attribute '{}' in 'fabric' in controller configuration".format(k))
+
+    if 'transport' in fabric:
+        check_connecting_transport(fabric['transport'])
+
+
 def check_controller(controller):
     """
     Check a node controller configuration item.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/worker/Controller-Configuration.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/worker/Controller-Configuration.md
 
     :param controller: The controller configuration to check.
     :type controller: dict
@@ -2696,7 +2906,7 @@ def check_controller(controller):
         raise InvalidConfigException("controller items must be dictionaries ({} encountered)\n\n{}".format(type(controller), pformat(controller)))
 
     for k in controller:
-        if k not in ['id', 'options', 'manhole', 'cdc', 'connections']:
+        if k not in ['id', 'options', 'extra', 'manhole', 'connections', 'fabric']:
             raise InvalidConfigException("encountered unknown attribute '{}' in controller configuration".format(k))
 
     if 'id' in controller:
@@ -2705,39 +2915,16 @@ def check_controller(controller):
     if 'options' in controller:
         check_controller_options(controller['options'])
 
+    if 'fabric' in controller:
+        check_controller_fabric(controller['fabric'])
+
     if 'manhole' in controller:
         check_manhole(controller['manhole'])
-
-    if 'cdc' in controller:
-        check_cdc(controller['cdc'])
-        mode = NODE_RUN_MANAGED
-    else:
-        mode = NODE_RUN_STANDALONE
 
     # connections
     #
     connections = controller.get('connections', [])
     check_connections(connections)
-
-    return mode
-
-
-def check_cdc(config):
-    """
-    Check a node CDC configuration item.
-
-    :param config: The CDC configuration to check.
-    :type config: dict
-    """
-    if not isinstance(config, Mapping):
-        raise InvalidConfigException("'config' item with CDC configuration must of type dictionary ({} encountered)\n\n{}".format(type(config), pformat(config)))
-
-    check_dict_args({
-        'transport': (False, [Mapping]),
-    }, config, "invalid 'cdc' configuration")
-
-    if 'transport' in config:
-        check_connecting_transport(config['transport'])
 
 
 def check_config(config):
@@ -2745,7 +2932,7 @@ def check_config(config):
     Check a Crossbar.io top-level configuration.
 
     http://crossbar.io/docs/
-    https://github.com/crossbario/crossbardocs/blob/master/pages/docs/administration/Node-Configuration.md
+    https://github.com/crossbario/crossbar/blob/master/docs/pages/administration/Node-Configuration.md
 
     :param config: The configuration to check.
     :type config: dict
@@ -2766,16 +2953,9 @@ def check_config(config):
 
     # check controller config
     #
-    mode = NODE_RUN_STANDALONE
     if 'controller' in config:
         log.debug("Checking controller item ..")
-        mode = check_controller(config['controller'])
-
-    # workers can only be configured locally in standalone mode
-    #
-    if False:
-        if mode == NODE_RUN_MANAGED and 'workers' in config:
-            raise InvalidConfigException("Workers can only be configured locally when running in 'standalone mode', not in 'managed mode' (when connecting to Crossbar.io DevOps Center)")
+        check_controller(config['controller'])
 
     # check worker configs
     #

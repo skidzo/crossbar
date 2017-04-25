@@ -1,9 +1,9 @@
 #####################################################################################
 #
-#  Copyright (C) Tavendo GmbH
+#  Copyright (c) Crossbar.io Technologies GmbH
 #
-#  Unless a separate license agreement exists between you and Tavendo GmbH (e.g. you
-#  have purchased a commercial license), the license terms below apply.
+#  Unless a separate license agreement exists between you and Crossbar.io GmbH (e.g.
+#  you have purchased a commercial license), the license terms below apply.
 #
 #  Should you enter into a separate license agreement after having received a copy of
 #  this software, then the terms of such license agreement replace the terms below at
@@ -89,9 +89,7 @@ import crossbar
 from crossbar.twisted.site import createHSTSRequestFactory
 
 from crossbar.twisted.resource import JsonResource, \
-    Resource404, \
-    RedirectResource, \
-    ReverseProxyResource
+    Resource404, RedirectResource, NodeInfoResource
 
 from crossbar.adapter.mqtt.wamp import WampMQTTServerFactory
 
@@ -263,14 +261,10 @@ class RouterWorkerSession(NativeWorkerSession):
     multiple realms, run multiple transports and links, as well as host
     multiple (embedded) application components.
     """
-    WORKER_TYPE = 'router'
+    WORKER_TYPE = u'router'
 
-    @inlineCallbacks
-    def onJoin(self, details):
-        """
-        Called when worker process has joined the node's management realm.
-        """
-        yield NativeWorkerSession.onJoin(self, details, publish_ready=False)
+    def __init__(self, config=None, reactor=None):
+        NativeWorkerSession.__init__(self, config, reactor)
 
         # factory for producing (per-realm) routers
         self._router_factory = RouterFactory()
@@ -287,41 +281,57 @@ class RouterWorkerSession(NativeWorkerSession):
         # map: component ID -> RouterComponent
         self.components = {}
 
+        # "global" shared between all components
+        self.components_shared = {
+            u'reactor': reactor
+        }
+
         # map: transport ID -> RouterTransport
         self.transports = {}
 
+    @inlineCallbacks
+    def onJoin(self, details):
+        """
+        Called when worker process has joined the node's management realm.
+        """
+        self.log.info('Router worker "{worker_id}" session {session_id} initializing ..', worker_id=self._worker_id, session_id=details.session)
+
+        yield NativeWorkerSession.onJoin(self, details, publish_ready=False)
+
         # the procedures registered
         procs = [
-            'get_router_realms',
-            'start_router_realm',
-            'stop_router_realm',
+            u'get_router_realms',
+            u'start_router_realm',
+            u'stop_router_realm',
 
-            'get_router_realm_roles',
-            'start_router_realm_role',
-            'stop_router_realm_role',
+            u'get_router_realm_roles',
+            u'start_router_realm_role',
+            u'stop_router_realm_role',
 
-            'get_router_realm_uplinks',
-            'start_router_realm_uplink',
-            'stop_router_realm_uplink',
+            u'get_router_realm_uplinks',
+            u'start_router_realm_uplink',
+            u'stop_router_realm_uplink',
 
-            'get_router_components',
-            'start_router_component',
-            'stop_router_component',
+            u'get_router_components',
+            u'start_router_component',
+            u'stop_router_component',
 
-            'get_router_transports',
-            'start_router_transport',
-            'stop_router_transport',
+            u'get_router_transports',
+            u'start_router_transport',
+            u'stop_router_transport',
         ]
 
         dl = []
         for proc in procs:
-            uri = '{}.{}'.format(self._uri_prefix, proc)
-            self.log.debug("Registering management API procedure {proc}", proc=uri)
+            uri = u'{}.{}'.format(self._uri_prefix, proc)
+            self.log.debug('Registering management API procedure <{proc}>', proc=uri)
             dl.append(self.register(getattr(self, proc), uri, options=RegisterOptions(details_arg='details')))
 
         regs = yield DeferredList(dl)
 
-        self.log.debug("Registered {cnt} management API procedures", cnt=len(regs))
+        self.log.debug('Ok, registered {cnt} management API procedures', cnt=len(regs))
+
+        self.log.info('Router worker "{worker_id}" session ready', worker_id=self._worker_id)
 
         # NativeWorkerSession.publish_ready()
         yield self.publish_ready()
@@ -578,18 +588,19 @@ class RouterWorkerSession(NativeWorkerSession):
         # components so that they have a chance to shutdown properly
         # -- e.g. on a ctrl-C of the router.
         leaves = []
-        for component in self.components.values():
-            if component.session.is_connected():
-                d = maybeDeferred(component.session.leave)
+        if self.components:
+            for component in self.components.values():
+                if component.session.is_connected():
+                    d = maybeDeferred(component.session.leave)
 
-                def done(_):
-                    self.log.info(
-                        "component '{id}' disconnected",
-                        id=component.id,
-                    )
-                    component.session.disconnect()
-                d.addCallback(done)
-                leaves.append(d)
+                    def done(_):
+                        self.log.info(
+                            "component '{id}' disconnected",
+                            id=component.id,
+                        )
+                        component.session.disconnect()
+                    d.addCallback(done)
+                    leaves.append(d)
         dl = DeferredList(leaves, consumeErrors=True)
         # we want our default behavior, which disconnects this
         # router-worker, effectively shutting it down .. but only
@@ -647,7 +658,11 @@ class RouterWorkerSession(NativeWorkerSession):
         #
         realm = config['realm']
         extra = config.get('extra', None)
-        component_config = ComponentConfig(realm=realm, extra=extra)
+        component_config = ComponentConfig(realm=realm,
+                                           extra=extra,
+                                           keyring=None,
+                                           controller=self if self.config.extra.expose_controller else None,
+                                           shared=self.components_shared if self.config.extra.expose_shared else None)
         create_component = _appsession_loader(config)
 
         # .. and create and add an WAMP application session to
@@ -837,6 +852,13 @@ class RouterWorkerSession(NativeWorkerSession):
             else:
                 rawsocket_factory = None
 
+            if 'mqtt' in config:
+                mqtt_factory = WampMQTTServerFactory(
+                    self._router_session_factory, config['mqtt'], self._reactor)
+                mqtt_factory.noisy = False
+            else:
+                mqtt_factory = None
+
             if 'websocket' in config:
                 websocket_factory_map = {}
                 for websocket_url_first_component, websocket_config in config['websocket'].items():
@@ -847,7 +869,7 @@ class RouterWorkerSession(NativeWorkerSession):
             else:
                 websocket_factory_map = None
 
-            transport_factory = UniSocketServerFactory(web_factory, websocket_factory_map, rawsocket_factory)
+            transport_factory = UniSocketServerFactory(web_factory, websocket_factory_map, rawsocket_factory, mqtt_factory)
 
         # Unknown transport type
         #
@@ -993,8 +1015,9 @@ class RouterWorkerSession(NativeWorkerSession):
                 static_resource_class = StaticResourceNoListing
 
             cache_timeout = static_options.get('cache_timeout', DEFAULT_CACHE_TIMEOUT)
+            allow_cross_origin = static_options.get('allow_cross_origin', True)
 
-            static_resource = static_resource_class(static_dir, cache_timeout=cache_timeout)
+            static_resource = static_resource_class(static_dir, cache_timeout=cache_timeout, allow_cross_origin=allow_cross_origin)
 
             # set extra MIME types
             #
@@ -1059,9 +1082,18 @@ class RouterWorkerSession(NativeWorkerSession):
             redirect_url = path_config['url'].encode('ascii', 'ignore')
             return RedirectResource(redirect_url)
 
+        # Node info resource
+        #
+        elif path_config['type'] == 'nodeinfo':
+            return NodeInfoResource(self._templates, self)
+
         # Reverse proxy resource
         #
         elif path_config['type'] == 'reverseproxy':
+
+            # Import late because t.w.proxy imports the reactor
+            from twisted.web.proxy import ReverseProxyResource
+
             host = path_config['host']
             port = int(path_config.get('port', 80))
             path = path_config.get('path', '').encode('ascii', 'ignore')
